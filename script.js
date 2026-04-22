@@ -1,7 +1,4 @@
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzfQD2g8ORLE_oRyErfT_BI6oVKQIwfeEZGsbFNteIYBiI8DM6P6xSMRebe4Hebsf6A/exec';
-
-let teacherList = [];
-let categoryList = [];
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzfHcnMzr4BmPwACaWxEOUnPV_KCT5yWyB15Ex4aww70n7skWiIHLoDT1imtICqEXdq/exec';
 
 function showLoginSection() {
   document.getElementById('loginSection').classList.remove('hidden');
@@ -11,7 +8,8 @@ function showLoginSection() {
 function showPraiseSection(writerName) {
   document.getElementById('loginSection').classList.add('hidden');
   document.getElementById('praiseSection').classList.remove('hidden');
-  document.getElementById('welcomeText').textContent = `${writerName} 선생님, 고마운 순간을 남겨 주세요.`;
+  document.getElementById('welcomeText').textContent =
+    `${writerName} 선생님, 고마운 순간을 남겨 주세요.`;
 }
 
 function saveSession(writerName) {
@@ -27,44 +25,57 @@ function clearSession() {
 }
 
 async function loadConfig() {
-  const res = await fetch(`${SCRIPT_URL}?action=config`);
-  const data = await res.json();
+  const loginMessage = document.getElementById('loginMessage');
 
-  teacherList = data.teachers || [];
-  categoryList = data.categories || [];
+  try {
+    const res = await fetch(`${SCRIPT_URL}?action=config`);
+    const result = await res.json();
 
-  const teacherNameSelect = document.getElementById('teacherName');
-  const nomineeNameSelect = document.getElementById('nomineeName');
-  const categorySelect = document.getElementById('category');
+    if (!result.ok) {
+      loginMessage.textContent = result.message || '설정 정보를 불러오지 못했습니다.';
+      return;
+    }
 
-  teacherNameSelect.innerHTML = '<option value="">선택하세요</option>';
-  nomineeNameSelect.innerHTML = '<option value="">선택하세요</option>';
-  categorySelect.innerHTML = '<option value="">선택하세요</option>';
+    const data = result.data || {};
+    const teachers = data.teachers || [];
+    const categories = data.categories || [];
 
-  teacherList.forEach(name => {
-    const opt1 = document.createElement('option');
-    opt1.value = name;
-    opt1.textContent = name;
-    teacherNameSelect.appendChild(opt1);
+    const teacherNameSelect = document.getElementById('teacherName');
+    const nomineeNameSelect = document.getElementById('nomineeName');
+    const categorySelect = document.getElementById('category');
 
-    const opt2 = document.createElement('option');
-    opt2.value = name;
-    opt2.textContent = name;
-    nomineeNameSelect.appendChild(opt2);
-  });
+    teacherNameSelect.innerHTML = '<option value="">선택하세요</option>';
+    nomineeNameSelect.innerHTML = '<option value="">선택하세요</option>';
+    categorySelect.innerHTML = '<option value="">선택하세요</option>';
 
-  categoryList.forEach(category => {
-    const opt = document.createElement('option');
-    opt.value = category;
-    opt.textContent = category;
-    categorySelect.appendChild(opt);
-  });
+    teachers.forEach((name) => {
+      const opt1 = document.createElement('option');
+      opt1.value = name;
+      opt1.textContent = name;
+      teacherNameSelect.appendChild(opt1);
 
-  const sessionWriter = getSession();
-  if (sessionWriter) {
-    showPraiseSection(sessionWriter);
-  } else {
-    showLoginSection();
+      const opt2 = document.createElement('option');
+      opt2.value = name;
+      opt2.textContent = name;
+      nomineeNameSelect.appendChild(opt2);
+    });
+
+    categories.forEach((category) => {
+      const opt = document.createElement('option');
+      opt.value = category;
+      opt.textContent = category;
+      categorySelect.appendChild(opt);
+    });
+
+    const sessionWriter = getSession();
+    if (sessionWriter) {
+      showPraiseSection(sessionWriter);
+    } else {
+      showLoginSection();
+    }
+  } catch (err) {
+    console.error(err);
+    loginMessage.textContent = '설정 정보를 불러오는 중 오류가 발생했습니다.';
   }
 }
 
@@ -78,14 +89,15 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
   loginMessage.textContent = '로그인 중입니다...';
 
   try {
+    const body = new URLSearchParams({
+      action: 'login',
+      teacherName,
+      writerCode
+    });
+
     const res = await fetch(SCRIPT_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'login',
-        teacherName,
-        writerCode
-      })
+      body
     });
 
     const result = await res.json();
@@ -100,6 +112,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     document.getElementById('loginForm').reset();
     showPraiseSection(result.writerName);
   } catch (err) {
+    console.error(err);
     loginMessage.textContent = '로그인 중 오류가 발생했습니다.';
   }
 });
@@ -108,23 +121,23 @@ document.getElementById('praiseForm').addEventListener('submit', async (e) => {
   e.preventDefault();
 
   const writerName = getSession();
-  const payload = {
+  const praiseMessage = document.getElementById('praiseMessage');
+
+  const body = new URLSearchParams({
     action: 'submitPraise',
     writerName,
     nomineeName: document.getElementById('nomineeName').value,
     category: document.getElementById('category').value,
     detailText: document.getElementById('detailText').value.trim(),
-    directConfirmed: document.getElementById('directConfirmed').checked
-  };
+    directConfirmed: document.getElementById('directConfirmed').checked ? 'true' : 'false'
+  });
 
-  const praiseMessage = document.getElementById('praiseMessage');
   praiseMessage.textContent = '저장 중입니다...';
 
   try {
     const res = await fetch(SCRIPT_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body
     });
 
     const result = await res.json();
@@ -137,6 +150,7 @@ document.getElementById('praiseForm').addEventListener('submit', async (e) => {
     praiseMessage.textContent = '따뜻한 기록이 남겨졌습니다.';
     document.getElementById('praiseForm').reset();
   } catch (err) {
+    console.error(err);
     praiseMessage.textContent = '전송 중 오류가 발생했습니다.';
   }
 });
