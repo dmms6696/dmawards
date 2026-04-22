@@ -8,7 +8,7 @@
 </head>
 <body>
   <main class="container">
-    <section class="card">
+    <section class="card" id="loginSection">
       <h1>덕분에</h1>
       <p class="subtitle">고마운 순간을 기록하다</p>
       <p class="desc">
@@ -16,10 +16,25 @@
         동료 선생님의 좋은 모습을 남겨 주세요.
       </p>
 
-      <form id="praiseForm">
-        <label for="writerCode">작성자 코드</label>
-        <input type="text" id="writerCode" placeholder="예: A102" required />
+      <form id="loginForm">
+        <label for="teacherName">교사 이름</label>
+        <select id="teacherName" required></select>
 
+        <label for="writerCode">작성자 코드</label>
+        <input type="password" id="writerCode" placeholder="작성자 코드를 입력해 주세요." required />
+
+        <button type="submit">로그인</button>
+      </form>
+
+      <p id="loginMessage" class="message"></p>
+    </section>
+
+    <section class="card hidden" id="praiseSection">
+      <h1>덕분에</h1>
+      <p class="subtitle">따뜻한 기록 남기기</p>
+      <p class="desc" id="welcomeText"></p>
+
+      <form id="praiseForm">
         <label for="nomineeName">대상 교사</label>
         <select id="nomineeName" required></select>
 
@@ -42,7 +57,9 @@
         <button type="submit">따뜻한 기록 남기기</button>
       </form>
 
-      <p id="message" class="message"></p>
+      <button type="button" id="logoutBtn" class="secondary-btn">로그아웃</button>
+
+      <p id="praiseMessage" class="message"></p>
     </section>
   </main>
 
