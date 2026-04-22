@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>덕분에</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="container">
+    <section class="card">
+      <h1>덕분에</h1>
+      <p class="subtitle">고마운 순간을 기록하다</p>
+      <p class="desc">
+        함께 일하며 고마웠던 순간,<br />
+        동료 선생님의 좋은 모습을 남겨 주세요.
+      </p>
+
+      <form id="praiseForm">
+        <label for="writerCode">작성자 코드</label>
+        <input type="text" id="writerCode" placeholder="예: A102" required />
+
+        <label for="nomineeName">대상 교사</label>
+        <select id="nomineeName" required></select>
+
+        <label for="category">카테고리</label>
+        <select id="category" required></select>
+
+        <label for="detailText">기억에 남는 장면이나 구체적인 내용</label>
+        <textarea
+          id="detailText"
+          rows="6"
+          placeholder="직접 경험하거나 관찰한 모습을 바탕으로, 언제 어떤 상황에서 어떤 점이 인상 깊었는지 적어 주세요."
+          required
+        ></textarea>
+
+        <label class="checkline">
+          <input type="checkbox" id="directConfirmed" />
+          직접 경험하거나 관찰한 사례를 바탕으로 작성했습니다.
+        </label>
+
+        <button type="submit">따뜻한 기록 남기기</button>
+      </form>
+
+      <p id="message" class="message"></p>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
